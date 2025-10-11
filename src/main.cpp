@@ -9,6 +9,15 @@
 
 using namespace std;
 
+#include <iostream>
+#include "menu.h" // 包含菜单头文件
+
+int main() {
+    // 主函数变得非常简单：就是启动主菜单
+    show_main_menu();
+    return 0;
+}
+
 class Calculator {
 // 在Calculator类中添加
 private:
@@ -107,7 +116,7 @@ public:
     }
 };
 
-int main() {
+int m() {
     Calculator calc;
     string input;
 
