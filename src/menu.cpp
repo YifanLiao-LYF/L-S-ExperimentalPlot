@@ -70,12 +70,10 @@ void show_mistakes() {
     std::cin.get();
 }
 
-// ... 您已有的 start_quiz() 和 show_mistakes() 函数 ...
-
 // ======== 新增的函数 ========
 // 添加关卡选择函数
 void show_level_selection() {
-    auto levels = levelSystem.getAllLevels();
+    auto levels = LevelSystem::getInstance().getAllLevels(); // 修改为使用单例
     
     std::cout << "\n=== 选择闯关关卡 ===\n";
     for (const auto& level : levels) {
@@ -98,7 +96,7 @@ void show_level_selection() {
     
     if (choice == 0) return;
     
-    Level selectedLevel = levelSystem.getLevel(choice);
+    Level selectedLevel = LevelSystem::getInstance().getLevel(choice); // 修改为使用单例
     if (selectedLevel.levelId == 0) {
         std::cout << "无效的关卡选择！" << std::endl;
         return;
@@ -121,41 +119,62 @@ void show_achievements() {
     std::cout << "成就系统开发中..." << std::endl;
 }
 
-
 void show_main_menu() {
     int choice = 0;
     
     while (true) { // 主循环
-        // ... 显示菜单的代码 ...
+        std::cout << "\n========== 数感闯关 ==========\n";
+        std::cout << "1. 开始闯关\n";
+        std::cout << "2. 专项练习\n";
+        std::cout << "3. 查看错题集\n";
+        std::cout << "4. 闯关进度\n";
+        std::cout << "5. 我的成就\n";
+        std::cout << "6. 退出程序\n";
+        std::cout << "请选择 [1-6]: ";
         
         std::cin >> choice;
         std::cin.ignore();
 
         switch (choice) {
             case 1: {
-                // ... 选项1的处理代码 ...
+                start_quiz();
                 break;
             }
             case 2: {
-                // ... 选项2的处理代码 ...
+                std::cout << "\n--> 专项练习（计算器模式）\n";
+                std::cout << "请输入数学表达式 (输入 'q' 返回主菜单):\n";
+                
+                std::string input;
+                while (std::getline(std::cin, input)) {
+                    if (input == "q" || input == "Q") {
+                        break; // 退出专项练习循环，返回主菜单
+                    }
+                    // 调用我们封装好的计算器函数！
+                    std::string result = calculate(input);
+                    std::cout << "结果: " << result << std::endl;
+                    std::cout << "\n请输入下一个表达式 (或输入 'q' 返回): ";
+                }
                 break;
             }
             case 3: {
-                // ... 选项3的处理代码 ...
+                show_mistakes();
                 break;
             }
             case 4: {
-                // ... 选项4的处理代码 ...
+                LevelSystem::getInstance().displayProgress(); // 修改为使用单例
+                std::cout << "按回车键返回主菜单...";
+                std::cin.get();
                 break;
             }
             case 5: {
-                // ... 选项5的处理代码 ...
+                show_achievements();
+                std::cout << "按回车键返回主菜单...";
+                std::cin.get();
                 break;
             }
             case 6: {
                 std::cout << "感谢使用，再见！\n";
-                return; // 修改这里：使用 return 退出函数
-                // 或者使用：exit(0); // 直接终止程序
+                return; // 使用 return 退出函数
             }
             default: {
                 std::cout << "输入无效，请重新选择！\n";

@@ -1,13 +1,16 @@
 #include "level_system.h"
 #include <iostream>
 
-// 全局实例定义
-LevelSystem levelSystem;
-
-// 构造函数
+// 构造函数（私有）
 LevelSystem::LevelSystem() : totalScore(0) {
     initializeLevels();
     initializeAchievements();
+}
+
+// 获取单例实例
+LevelSystem& LevelSystem::getInstance() {
+    static LevelSystem instance; // 静态局部变量，保证线程安全(C++11及以上)
+    return instance;
 }
 
 // 初始化关卡数据
@@ -75,12 +78,36 @@ void LevelSystem::checkUnlockConditions() {
 
 // 检查成就达成
 void LevelSystem::checkAchievements() {
-    // 实现成就检查逻辑
+    // 检查首次通关成就
+    if (!achievements[ACH_FIRST_BLOOD].unlocked) {
+        for (const auto& level : levels) {
+            if (level.score > 0) {
+                achievements[ACH_FIRST_BLOOD].unlocked = true;
+                std::cout << "🎖️ 成就解锁: " << achievements[ACH_FIRST_BLOOD].name << std::endl;
+                break;
+            }
+        }
+    }
+    
+    // 检查完美得分成就
+    if (!achievements[ACH_PERFECT_SCORE].unlocked) {
+        for (const auto& level : levels) {
+            if (level.score >= 100) { // 假设满分是100
+                achievements[ACH_PERFECT_SCORE].unlocked = true;
+                std::cout << "🎖️ 成就解锁: " << achievements[ACH_PERFECT_SCORE].name << std::endl;
+                break;
+            }
+        }
+    }
+    
+    // 可以继续添加其他成就的检查逻辑
 }
 
 // 显示关卡进度
 void LevelSystem::displayProgress() {
     std::cout << "\n=== 我的闯关进度 ===\n";
+    std::cout << "总分数: " << totalScore << std::endl;
+    
     for (const auto& level : levels) {
         std::cout << "关卡 " << level.levelId << ": " << level.title;
         std::cout << " [" << (level.unlocked ? "已解锁" : "锁定中") << "]";

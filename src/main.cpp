@@ -9,8 +9,8 @@
 
 using namespace std;
 
-#include <iostream>
 #include "menu.h" // 包含菜单头文件
+#include "level_system.h" // 包含关卡系统头文件
 
 int main() {
     // 主函数变得非常简单：就是启动主菜单
@@ -19,7 +19,6 @@ int main() {
 }
 
 class Calculator {
-// 在Calculator类中添加
 private:
     map<string, double> variables;
 
@@ -27,7 +26,8 @@ public:
     void setVariable(const string& name, double value) {
         variables[name] = value;
     }
-    private:
+    
+private:
     // 检查运算符优先级
     int getPriority(char op) {
         if (op == '+' || op == '-') return 1;
@@ -116,6 +116,7 @@ public:
     }
 };
 
+// 注意：这个m()函数没有被使用，可以删除
 int m() {
     Calculator calc;
     string input;

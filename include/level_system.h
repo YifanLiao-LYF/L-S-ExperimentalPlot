@@ -38,8 +38,17 @@ private:
     std::vector<Achievement> achievements;
     int totalScore;
     
-public:
+    // 私有构造函数防止外部实例化
     LevelSystem();
+    
+    // 删除拷贝构造函数和赋值操作符防止复制
+    LevelSystem(const LevelSystem&) = delete;
+    LevelSystem& operator=(const LevelSystem&) = delete;
+    
+public:
+    // 获取单例实例的静态方法
+    static LevelSystem& getInstance();
+    
     void initializeLevels();
     void initializeAchievements();
     std::vector<Level> getAllLevels();
@@ -48,9 +57,9 @@ public:
     void checkUnlockConditions();
     void checkAchievements();
     void displayProgress();
+    
+    // 获取总分数
+    int getTotalScore() const { return totalScore; }
 };
-
-// 外部声明
-extern LevelSystem levelSystem;
 
 #endif
