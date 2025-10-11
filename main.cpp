@@ -10,7 +10,15 @@
 using namespace std;
 
 class Calculator {
+// 在Calculator类中添加
 private:
+    map<string, double> variables;
+
+public:
+    void setVariable(const string& name, double value) {
+        variables[name] = value;
+    }
+    private:
     // 检查运算符优先级
     int getPriority(char op) {
         if (op == '+' || op == '-') return 1;
