@@ -6,26 +6,21 @@
 
 class QuizManager {
 private:
-    std::vector<Question> questionBank; // 题库
-    int currentQuestionIndex;           // 当前题目索引
+    std::vector<Question> questionBank;
+    int currentQuestionIndex;
+    int currentLevelId;  // 当前题目所属关卡
     
 public:
     QuizManager();
     
-    // 加载题库
-    void loadQuestionBank();
-    
-    // 获取下一道题
+    // 关卡题目管理
+    void loadQuestionsForLevel(int levelId);
     Question getNextQuestion();
-    
-    // 检查答案
     bool checkAnswer(const std::string& userAnswer);
-    
-    // 获取当前题目的解释
     std::string getExplanation();
-    
-    // 重置题库（从头开始）
     void reset();
+    
+    int getCurrentLevelId() const { return currentLevelId; }
 };
 
 #endif

@@ -1,26 +1,64 @@
 #include "quiz_manager.h"
-#include <fstream>
 #include <iostream>
-#include <random>
 
-QuizManager::QuizManager() : currentQuestionIndex(0) {
-    loadQuestionBank();
+QuizManager::QuizManager() : currentQuestionIndex(0), currentLevelId(1) {
+    loadQuestionsForLevel(1); // 默认加载第一关题目
 }
 
-void QuizManager::loadQuestionBank() {
-    // 这里先使用硬编码的题目，后续可以改为从文件读取
-    questionBank = {
-        {1, ARITHMETIC, "计算: 3 + 5 × 2", "13", "先乘除后加减: 5×2=10, 然后3+10=13"},
-        {2, ARITHMETIC, "计算: (4 + 6) ÷ 2", "5", "先计算括号内: 4+6=10, 然后10÷2=5"},
-        {3, ALGEBRA, "解方程: 2x + 3 = 11", "4", "2x = 11 - 3 => 2x = 8 => x = 4"},
-        {4, ALGEBRA, "解方程: 3(x - 2) = 12", "6", "3x - 6 = 12 => 3x = 18 => x = 6"},
-        {5, FACTORIZATION, "因式分解: x² - 4", "(x+2)(x-2)", "平方差公式: a² - b² = (a+b)(a-b)"}
-    };
+void QuizManager::loadQuestionsForLevel(int levelId) {
+    currentLevelId = levelId;
+    questionBank.clear();
+    currentQuestionIndex = 0;
+    
+    // 根据关卡ID加载不同题目（题目内容留空）
+    switch (levelId) {
+        case 1:
+            // 关卡1题目：有理数运算
+            questionBank = {
+                {1, ARITHMETIC, "题目1内容（有理数运算）", "答案1", "解析1"},
+                {2, ARITHMETIC, "题目2内容（有理数运算）", "答案2", "解析2"},
+                {3, ARITHMETIC, "题目3内容（有理数运算）", "答案3", "解析3"},
+                {4, ARITHMETIC, "题目4内容（有理数运算）", "答案4", "解析4"},
+                {5, ARITHMETIC, "题目5内容（有理数运算）", "答案5", "解析5"}
+            };
+            break;
+        case 2:
+            // 关卡2题目：一元一次方程
+            questionBank = {
+                {1, ALGEBRA, "题目1内容（一元一次方程）", "答案1", "解析1"},
+                {2, ALGEBRA, "题目2内容（一元一次方程）", "答案2", "解析2"},
+                {3, ALGEBRA, "题目3内容（一元一次方程）", "答案3", "解析3"},
+                {4, ALGEBRA, "题目4内容（一元一次方程）", "答案4", "解析4"},
+                {5, ALGEBRA, "题目5内容（一元一次方程）", "答案5", "解析5"}
+            };
+            break;
+        case 3:
+            // 关卡3题目：因式分解
+            questionBank = {
+                {1, FACTORIZATION, "题目1内容（因式分解）", "答案1", "解析1"},
+                {2, FACTORIZATION, "题目2内容（因式分解）", "答案2", "解析2"},
+                {3, FACTORIZATION, "题目3内容（因式分解）", "答案3", "解析3"},
+                {4, FACTORIZATION, "题目4内容（因式分解）", "答案4", "解析4"},
+                {5, FACTORIZATION, "题目5内容（因式分解）", "答案5", "解析5"}
+            };
+            break;
+        case 4:
+            // 关卡4题目：综合挑战
+            questionBank = {
+                {1, ARITHMETIC, "题目1内容（综合挑战）", "答案1", "解析1"},
+                {2, ALGEBRA, "题目2内容（综合挑战）", "答案2", "解析2"},
+                {3, FACTORIZATION, "题目3内容（综合挑战）", "答案3", "解析3"},
+                {4, ARITHMETIC, "题目4内容（综合挑战）", "答案4", "解析4"},
+                {5, ALGEBRA, "题目5内容（综合挑战）", "答案5", "解析5"}
+            };
+            break;
+        default:
+            break;
+    }
 }
 
 Question QuizManager::getNextQuestion() {
     if (currentQuestionIndex >= questionBank.size()) {
-        // 所有题目已做完，可以重置或处理结束情况
         return Question{-1, ARITHMETIC, "所有题目已完成!", "", ""};
     }
     
