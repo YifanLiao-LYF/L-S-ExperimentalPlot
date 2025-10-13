@@ -2,13 +2,19 @@
 #define QUIZ_MANAGER_H
 
 #include <vector>
+#include <string>
 #include "question.h"
 
 class QuizManager {
 private:
     std::vector<Question> questionBank;
     int currentQuestionIndex;
-    int currentLevelId;  // 当前题目所属关卡
+    int currentLevelId;
+    
+    // 题目生成函数
+    std::vector<Question> generateLevel1Questions();
+    std::vector<Question> generateLevel2Questions();
+    std::vector<Question> generateLevel3Questions();
     
 public:
     QuizManager();
@@ -20,7 +26,7 @@ public:
     std::string getExplanation();
     void reset();
     
-    int getCurrentLevelId() const { return currentLevelId; }
+    int getCurrentLevelId() const;
 };
 
 #endif
