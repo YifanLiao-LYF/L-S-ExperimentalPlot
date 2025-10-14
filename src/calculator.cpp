@@ -1,23 +1,23 @@
 #include "calculator.h"
-#include <iostream>
 #include <stack>
 #include <cmath>
 #include <cctype>
 #include <stdexcept>
 #include <sstream>
-#include <map>
+#include <iostream>
 
 using namespace std;
 
 // 检查运算符优先级
-int Calculator::getPriority(char op) {
+int getPriority(char op) {
     if (op == '+' || op == '-') return 1;
     if (op == '*' || op == '/') return 2;
+    if (op == '^') return 3;
     return 0;
 }
 
 // 执行基础二元运算
-double Calculator::applyOperator(double a, double b, char op) {
+double applyOperator(double a, double b, char op) {
     switch (op) {
         case '+': return a + b;
         case '-': return a - b;
@@ -25,18 +25,18 @@ double Calculator::applyOperator(double a, double b, char op) {
         case '/': 
             if (b == 0) throw runtime_error("数学错误: 除数不能为零");
             return a / b;
+        case '^': return pow(a, b);
         default: throw runtime_error("不支持的运算符");
     }
 }
 
 // 处理单个数字的读取
-double Calculator::parseNumber(const string& expr, size_t& index) {
+double parseNumber(const string& expr, size_t& index) {
     string numStr;
     while (index < expr.length() && (isdigit(expr[index]) || expr[index] == '.')) {
-        numStr += expr[index];
-        index++;
+        numStr += expr[index++];
     }
-    index--; // 回退一位，因为外层循环会再前进一位
+    index--; // 回退一位
     
     try {
         return stod(numStr);
@@ -45,7 +45,6 @@ double Calculator::parseNumber(const string& expr, size_t& index) {
     }
 }
 
-// 核心求值函数
 double Calculator::evalExpression(const string& expr) {
     stack<double> values;
     stack<char> operators;
@@ -68,7 +67,7 @@ double Calculator::evalExpression(const string& expr) {
         else if (isdigit(expr[i])) {
             values.push(parseNumber(expr, i));
         }
-        else if (expr[i] == '+' || expr[i] == '-' || expr[i] == '*' || expr[i] == '/') {
+        else if (expr[i] == '+' || expr[i] == '-' || expr[i] == '*' || expr[i] == '/' || expr[i] == '^') {
             // 处理负号（一元运算符）
             if (expr[i] == '-' && (i == 0 || expr[i-1] == '(' || 
                 (i>0 && (expr[i-1] == '+' || expr[i-1] == '-' || expr[i-1] == '*' || expr[i-1] == '/')))) {
@@ -99,18 +98,17 @@ double Calculator::evalExpression(const string& expr) {
     return values.top();
 }
 
-// 全局计算函数
 string calculate(const string& expr) {
     Calculator calc;
     try {
         double result = calc.evalExpression(expr);
         
-        // 处理浮点数精度问题，避免显示 -0.0
+        // 处理浮点数精度问题
         if (abs(result) < 1e-10) result = 0.0;
         
         // 将结果转换为字符串
         stringstream ss;
-        ss.precision(10); // 设置精度
+        ss.precision(10);
         ss << result;
         return ss.str();
     } catch (const exception& e) {
