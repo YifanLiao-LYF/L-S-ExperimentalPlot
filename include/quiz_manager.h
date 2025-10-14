@@ -2,7 +2,6 @@
 #define QUIZ_MANAGER_H
 
 #include <vector>
-#include <string>
 #include "question.h"
 
 class QuizManager {
@@ -11,15 +10,17 @@ private:
     int currentQuestionIndex;
     int currentLevelId;
     
-    // 题目生成函数
+    // 声明关卡题目生成函数
     std::vector<Question> generateLevel1Questions();
     std::vector<Question> generateLevel2Questions();
     std::vector<Question> generateLevel3Questions();
+    std::vector<Question> generateLevel4Questions();
+    std::vector<Question> generateLevel5Questions();
+    std::vector<Question> generateLevel6Questions();
     
 public:
     QuizManager();
     
-    // 关卡题目管理
     void loadQuestionsForLevel(int levelId);
     Question getNextQuestion();
     bool checkAnswer(const std::string& userAnswer);

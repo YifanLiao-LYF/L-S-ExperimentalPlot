@@ -3,16 +3,16 @@
 #include "calculator.h"
 #include "quiz_manager.h"
 #include "mistake_manager.h"
-#include "level_system.h"
+#include "level_manager.h"
 
 // 全局实例
 QuizManager quizManager;
 MistakeManager mistakeManager;
-LevelSystem levelSystem;
+LevelManager levelManager;
 
 // 闯关游戏主函数
 void play_level(int levelId) {
-    Level level = levelSystem.getLevel(levelId);
+    Level level = levelManager.getLevel(levelId);
     
     if (level.status == LEVEL_LOCKED) {
         std::cout << "该关卡尚未解锁！需要 " << level.requiredScore << " 分才能解锁。" << std::endl;
@@ -63,7 +63,7 @@ void play_level(int levelId) {
     else if (score >= 50) stars = 1;
     
     // 完成关卡
-    levelSystem.completeLevel(levelId, score, stars);
+    levelManager.completeLevel(levelId, score, stars);
     
     // 显示结果
     std::cout << "\n🎊 关卡完成！" << std::endl;
@@ -71,19 +71,21 @@ void play_level(int levelId) {
     std::cout << "📊 得分: " << score << "/100" << std::endl;
     std::cout << "⭐ 星级: ";
     for (int i = 0; i < stars; i++) std::cout << "★";
-    std::cout << std::endl;
+    std::;
     
     // 检查是否有下一关
-    Level nextLevel = levelSystem.getNextLevel(levelId);
-    if (nextLevel.levelId != -1 && nextLevel.status == LEVEL_UNLOCKED) {
-        std::cout << "\n🎯 下一关已解锁: " << nextLevel.title << std::endl;
-        std::cout << "是否立即挑战下一关？(y/n): ";
-        
-        std::string choice;
-        std::getline(std::cin, choice);
-        
-        if (choice == "y" || choice == "Y") {
-            play_level(nextLevel.levelId); // 递归进入下一关
+    if (levelId < 6) {
+        Level nextLevel = levelManager.getLevel(levelId + 1);
+        if (nextLevel.status == LEVEL_UNLOCKED) {
+            std::cout << "\n🎯 下一关已解锁: " << nextLevel.title << std::endl;
+            std::cout << "是否立即挑战下一关？(y/n): ";
+            
+            std::string choice;
+            std::getline(std::cin, choice);
+            
+            if (choice == "y" || choice == "Y") {
+                play_level(levelId + 1); // 进入下一关
+            }
         }
     }
     
@@ -93,7 +95,7 @@ void play_level(int levelId) {
 
 // 关卡选择菜单
 void show_level_selection() {
-    levelSystem.displayLevelSelection();
+    levelManager.displayLevelSelection();
     
     std::cout << "\n请选择关卡编号 (0返回主菜单): ";
     int choice;
@@ -114,9 +116,9 @@ void show_mistakes() {
         return;
     }
     
-    std::cout << "\n=== 错题集 ===" << std::endl;
+    std::cout << "\n=== 错题集 ===\n";
     for (int i = 0; i < mistakes.size(); i++) {
-        std::cout << "\n错题 " << (i + 1) << ":" << std::endl;
+        std::cout << "\n错题 " << ( + 1) << ":" << std::endl;
         std::cout << "题目: " << mistakes[i].content << std::endl;
         std::cout << "正确答案: " << mistakes[i].answer << std::endl;
         std::cout << "解析: " << mistakes[i].explanation << std::endl;
@@ -130,26 +132,19 @@ void show_mistakes() {
 // 专项练习函数
 void practice_mode() {
     std::cout << "\n--> 专项练习模式\n";
-    std::cout << "支持运算符: +, -, *, /, ()\n";
-    std::cout << "输入 'q' 返回主菜单\n\n";
+    std::cout << "请输入数学表达式 (输入 'q' 返回主菜单):\n";
     
     std::string input;
     while (true) {
-        std::cout << "请输入表达式: ";
+        std::cout << "\n请输入表达式 (或输入 'q' 返回): ";
         std::getline(std::cin, input);
         
         if (input == "q" || input == "Q") {
             break;
         }
         
-        if (input.empty()) continue;
-        
-        try {
-            std::string result = calculate(input);
-            std::cout << "结果: " << result << std::endl;
-        } catch (const std::exception& e) {
-            std::cerr << "计算错误: " << e.what() << std::endl;
-        }
+        std::string result = calculate(input);
+        std::cout << "结果: " << result << std::endl;
     }
 }
 
@@ -169,38 +164,31 @@ void show_main_menu() {
         std::cin >> choice;
         std::cin.ignore();
         
-        // 使用大括号包裹每个case块，避免变量作用域问题
         switch (choice) {
-            case 1: {
+            case 1:
                 show_level_selection();
                 break;
-            }
-            case 2: {
+            case 2:
                 practice_mode();
                 break;
-            }
-            case 3: {
+            case 3:
                 show_mistakes();
                 break;
-            }
-            case 4: {
-                levelSystem.displayLevelProgress();
+            case 4:
+                levelManager.displayLevelProgress();
                 std::cout << "按回车键返回主菜单...";
                 std::cin.get();
                 break;
-            }
-            case 5: {
+            case 5:
                 std::cout << "感谢使用，再见！\n";
                 return;
-            }
-            default: {
+            default:
                 std::cout << "输入无效，请重新选择！\n";
                 if (std::cin.fail()) {
                     std::cin.clear();
                     std::cin.ignore(10000, '\n');
                 }
                 break;
-            }
         }
     }
 }
