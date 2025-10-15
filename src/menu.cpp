@@ -12,6 +12,13 @@ LevelManager levelManager;
 
 // 闯关游戏主函数
 void play_level(int levelId) {
+    // 检查关卡是否有效
+    if (levelId < 1 || levelId > 16) {
+        std::cout << "无效的关卡编号！" << std::endl;
+        return;
+    }
+    
+    // 获取关卡信息
     Level level = levelManager.getLevel(levelId);
     
     if (level.status == LEVEL_LOCKED) {
@@ -19,8 +26,7 @@ void play_level(int levelId) {
         return;
     }
     
-    std::cout << "\n🎯 开始挑战: " << level.title << std::endl;
-    std::cout << "📝 " << level.description << std::endl;
+    std::cout << "\n🎯 开始挑战: 关卡 " << levelId << std::endl;
     
     // 加载该关卡的题目
     quizManager.loadQuestionsForLevel(levelId);
@@ -71,13 +77,13 @@ void play_level(int levelId) {
     std::cout << "📊 得分: " << score << "/100" << std::endl;
     std::cout << "⭐ 星级: ";
     for (int i = 0; i < stars; i++) std::cout << "★";
-    std::;
+    std::cout << std::endl;
     
     // 检查是否有下一关
-    if (levelId < 6) {
+    if (levelId < 16) {
         Level nextLevel = levelManager.getLevel(levelId + 1);
         if (nextLevel.status == LEVEL_UNLOCKED) {
-            std::cout << "\n🎯 下一关已解锁: " << nextLevel.title << std::endl;
+            std::cout << "\n🎯 下一关已解锁: 关卡 " << (levelId + 1) << std::endl;
             std::cout << "是否立即挑战下一关？(y/n): ";
             
             std::string choice;
@@ -95,16 +101,77 @@ void play_level(int levelId) {
 
 // 关卡选择菜单
 void show_level_selection() {
-    levelManager.displayLevelSelection();
+    int choice = 0;
+    int page = 1; // 当前页码
+    const int levelsPerPage = 8; // 每页显示的关卡数
     
-    std::cout << "\n请选择关卡编号 (0返回主菜单): ";
-    int choice;
-    std::cin >> choice;
-    std::cin.ignore();
-    
-    if (choice == 0) return;
-    
-    play_level(choice);
+    do {
+        system("cls");
+        std::cout << "==============================\n";
+        std::cout << "         关卡选择 (第 " << page << " 页)\n";
+        std::cout << "==============================\n";
+        
+        // 计算当前页的起始和结束关卡
+        int startLevel = (page - 1) * levelsPerPage + 1;
+        int endLevel = std::min(page * levelsPerPage, 16);
+        
+        // 显示当前页的关卡选项
+        for (int i = startLevel; i <= endLevel; i++) {
+            Level level = levelManager.getLevel(i);
+            std::cout << i << ". 关卡 " << i;
+            
+            if (level.status == LEVEL_LOCKED) {
+                std::cout << " [锁定 - 需要 " << level.requiredScore << " 分]";
+            } else if (level.status == LEVEL_COMPLETED) {
+                std::cout << " [已完成 - " << level.score << "分]";
+            } else {
+                std::cout << " [可挑战]";
+            }
+            
+            std::cout << std::endl;
+        }
+        
+        // 显示导航选项
+        std::cout << "==============================\n";
+        if (page > 1) {
+            std::cout << "p. 上一页\n";
+        }
+        if (endLevel < 16) {
+            std::cout << "n. 下一页\n";
+        }
+        std::cout << "0. 返回主菜单\n";
+        std::cout << "==============================\n";
+        std::cout << "请选择关卡 (1-16) 或导航选项: ";
+        
+        std::string input;
+        std::getline(std::cin, input);
+        
+        // 处理导航选项
+        if (input == "p" || input == "P") {
+            if (page > 1) page--;
+            continue;
+        } else if (input == "n" || input == "N") {
+            if (endLevel < 16) page++;
+            continue;
+        } else if (input == "0") {
+            return;
+        }
+        
+        // 尝试将输入转换为整数
+        try {
+            choice = std::stoi(input);
+        } catch (...) {
+            choice = -1; // 无效输入
+        }
+        
+        if (choice >= 1 && choice <= 16) {
+            play_level(choice);
+        } else {
+            std::cout << "无效选择！请选择 1-16 或导航选项。" << std::endl;
+            std::cout << "按回车键继续...";
+            std::cin.get();
+        }
+    } while (true);
 }
 
 // 查看错题集
@@ -118,7 +185,7 @@ void show_mistakes() {
     
     std::cout << "\n=== 错题集 ===\n";
     for (int i = 0; i < mistakes.size(); i++) {
-        std::cout << "\n错题 " << ( + 1) << ":" << std::endl;
+        std::cout << "\n错题 " << (i + 1) << ":" << std::endl;
         std::cout << "题目: " << mistakes[i].content << std::endl;
         std::cout << "正确答案: " << mistakes[i].answer << std::endl;
         std::cout << "解析: " << mistakes[i].explanation << std::endl;
@@ -153,6 +220,7 @@ void show_main_menu() {
     int choice = 0;
     
     while (true) {
+        system("cls");
         std::cout << "\n========== 数感闯关 ==========\n";
         std::cout << "1. 开始闯关\n";
         std::cout << "2. 专项练习\n";
@@ -188,6 +256,8 @@ void show_main_menu() {
                     std::cin.clear();
                     std::cin.ignore(10000, '\n');
                 }
+                std::cout << "按回车键继续...";
+                std::cin.get();
                 break;
         }
     }

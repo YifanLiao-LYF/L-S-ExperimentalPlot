@@ -15,8 +15,8 @@ struct Level {
     std::string title;
     std::string description;
     LevelStatus status;
-    int stars;
     int score;
+    int stars;
     int requiredScore;
 };
 
@@ -26,23 +26,21 @@ private:
     int totalScore;
     
     void initializeLevels();
-    
+
 public:
     LevelManager();
-    
-    // 关卡管理
     Level getLevel(int levelId);
     std::vector<Level> getAllLevels();
     bool unlockLevel(int levelId);
     bool completeLevel(int levelId, int score, int stars);
-    
-    // 进度管理
     int getTotalScore() const;
     void addScore(int score);
-    
-    // 显示功能
     void displayLevelSelection();
     void displayLevelProgress();
+    int getTotalLevels() const;
+    
+    // 添加调试函数
+    void debugLevels();
 };
 
-#endif
+#endif // LEVEL_MANAGER_H

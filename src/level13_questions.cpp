@@ -1,0 +1,127 @@
+#include "question.h"
+#include <random>
+#include <string>
+#include <vector>
+#include <sstream>
+#include <cmath>
+#include <map>
+#include <algorithm>
+#include <ctime>     // 添加这行
+// 生成随机整数
+int randomInt(int min, int max) {
+    static std::random_device rd;
+    static std::mt19937 gen(rd());
+    std::uniform_int_distribution<> distrib(min, max);
+    return distrib(gen);
+}
+
+// 包含前面所有关卡的题目生成函数声明
+std::vector<Question> generateLevel1Questions();
+std::vector<Question> generateLevel2Questions();
+std::vector<Question> generateLevel3Questions();
+std::vector<Question> generateLevel4Questions();
+std::vector<Question> generateLevel5Questions();
+std::vector<Question> generateLevel6Questions();
+std::vector<Question> generateLevel7Questions();
+std::vector<Question> generateLevel8Questions();
+std::vector<Question> generateLevel9Questions();
+std::vector<Question> generateLevel10Questions();
+std::vector<Question> generateLevel11Questions();
+std::vector<Question> generateLevel12Questions();
+
+// 生成关卡13题目（综合关卡一，随机抽取前面所有关卡的题目）
+std::vector<Question> generateLevel13Questions() {
+    std::vector<Question> questions;
+    
+    // 收集前面所有关卡的题目
+    std::vector<std::vector<Question>> allQuestions;
+    allQuestions.push_back(generateLevel1Questions());  // 十以内加减乘除
+    allQuestions.push_back(generateLevel2Questions());  // 百以内加减乘除
+    allQuestions.push_back(generateLevel3Questions());  // 多项式运算
+    allQuestions.push_back(generateLevel4Questions());  // 十以内小数运算
+    allQuestions.push_back(generateLevel5Questions());  // 百以内小数运算
+    allQuestions.push_back(generateLevel6Questions());  // 复杂小数运算
+    allQuestions.push_back(generateLevel7Questions());  // 幂函数计算
+    allQuestions.push_back(generateLevel8Questions());  // 分数幂计算
+    allQuestions.push_back(generateLevel9Questions());  // 平方根计算
+    allQuestions.push_back(generateLevel10Questions()); // 简单特殊三角函数值
+    allQuestions.push_back(generateLevel11Questions()); // 简单三角方程及应用
+    allQuestions.push_back(generateLevel12Questions()); // 复合三角恒等式与不等式
+    
+    // 确定题目数量 (10-15题)
+    int numQuestions = randomInt(10, 15);
+    
+    // 从所有题目中随机选择
+    for (int i = 0; i < numQuestions; i++) {
+        // 随机选择一个关卡
+        int level = randomInt(0, 11);
+        
+        // 确保该关卡有题目
+        if (allQuestions[level].empty()) {
+            i--; // 重试
+            continue;
+        }
+        
+        // 从该关卡中随机选择一道题目
+        int questionIndex = randomInt(0, allQuestions[level].size() - 1);
+        Question selectedQuestion = allQuestions[level][questionIndex];
+        
+        // 更新题目ID
+        selectedQuestion.id = i + 1;
+        
+        // 添加到结果集
+        questions.push_back(selectedQuestion);
+        
+        // 从原关卡中移除该题目，避免重复
+        allQuestions[level].erase(allQuestions[level].begin() + questionIndex);
+    }
+    
+    return questions;
+}
+
+// 每日挑战关卡函数
+std::vector<Question> generateDailyChallenge() {
+    // 获取当前日期作为随机种子，确保每天题目相同
+    time_t t = time(nullptr);
+    tm* now = localtime(&t);
+    int seed = (now->tm_year + 1900) * 10000 + (now->tm_mon + 1) * 100 + now->tm_mday;
+    
+    static std::mt19937 gen(seed);
+    std::uniform_int_distribution<> distrib(0, 11);
+    
+    std::vector<Question> dailyQuestions;
+    
+    // 每天固定5道题，从不同关卡中随机选择
+    for (int i = 0; i < 5; i++) {
+        int level = distrib(gen);
+        
+        // 根据关卡号调用相应的生成函数
+        std::vector<Question> levelQuestions;
+        switch (level) {
+            case 0: levelQuestions = generateLevel1Questions(); break;
+            case 1: levelQuestions = generateLevel2Questions(); break;
+            case 2: levelQuestions = generateLevel3Questions(); break;
+            case 3: levelQuestions = generateLevel4Questions(); break;
+            case 4: levelQuestions = generateLevel5Questions(); break;
+            case 5: levelQuestions = generateLevel6Questions(); break;
+            case 6: levelQuestions = generateLevel7Questions(); break;
+            case 7: levelQuestions = generateLevel8Questions(); break;
+            case 8: levelQuestions = generateLevel9Questions(); break;
+            case 9: levelQuestions = generateLevel10Questions(); break;
+            case 10: levelQuestions = generateLevel11Questions(); break;
+            case 11: levelQuestions = generateLevel12Questions(); break;
+        }
+        
+        // 从该关卡题目中随机选择一道
+        if (!levelQuestions.empty()) {
+            int questionIndex = distrib(gen) % levelQuestions.size();
+            Question selectedQuestion = levelQuestions[questionIndex];
+            selectedQuestion.id = i + 1;
+            dailyQuestions.push_back(selectedQuestion);
+        } else {
+            i--; // 重试
+        }
+    }
+    
+    return dailyQuestions;
+}

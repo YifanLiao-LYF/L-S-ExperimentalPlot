@@ -1,0 +1,62 @@
+#include "question.h"
+#include <random>
+#include <string>
+#include <vector>
+#include <sstream>
+#include <cmath>
+
+// 生成随机整数
+int randomInt(int min, int max) {
+    static std::random_device rd;
+    static std::mt19937 gen(rd());
+    std::uniform_int_distribution<> distrib(min, max);
+    return distrib(gen);
+}
+
+// 生成关卡7题目（幂函数计算）
+std::vector<Question> generateLevel7Questions() {
+    std::vector<Question> questions;
+    
+    for (int i = 1; i <= 10; i++) {
+        Question q;
+        q.id = i;
+        q.type = POWER;
+        
+        // 生成1-20以内的平方或1-10以内的立方
+        int base = randomInt(1, 20);
+        int exponent;
+        
+        // 70%概率生成平方，30%概率生成立方
+        if (randomInt(1, 10) <= 7) {
+            exponent = 2; // 平方
+        } else {
+            exponent = 3; // 立方
+            // 对于立方，限制底数在1-10之间
+            if (base > 10) base = randomInt(1, 10);
+        }
+        
+        std::stringstream ss;
+        ss << base << "^" << exponent;
+        q.content = ss.str();
+        
+        // 计算答案
+        long long result = 1;
+        for (int j = 0; j < exponent; j++) {
+            result *= base;
+        }
+        q.answer = std::to_string(result);
+        
+        // 生成解析
+        std::stringstream expl_ss;
+        expl_ss << "直接计算: " << base;
+        for (int j = 1; j < exponent; j++) {
+            expl_ss << " × " << base;
+        }
+        expl_ss << " = " << result;
+        q.explanation = expl_ss.str();
+        
+        questions.push_back(q);
+    }
+    
+    return questions;
+}

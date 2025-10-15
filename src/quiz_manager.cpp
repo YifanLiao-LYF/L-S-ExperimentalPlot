@@ -1,10 +1,11 @@
 #include "quiz_manager.h"
 #include <iostream>
-#include <random>
-#include <algorithm>
+#include <fstream>
+#include <string>
+#include <vector>
 #include <sstream>
-#include <iomanip>
-#include <cmath>
+#include <random>
+#include <ctime>
 
 // 构造函数
 QuizManager::QuizManager() : currentQuestionIndex(0), currentLevelId(1) {
@@ -17,374 +18,144 @@ void QuizManager::loadQuestionsForLevel(int levelId) {
     questionBank.clear();
     currentQuestionIndex = 0;
     
-    // 根据关卡ID加载不同题目
+    // 根据关卡ID从外部文件加载题目
+    std::string filename;
     switch (levelId) {
-        case 1:
-            questionBank = generateLevel1Questions();
-            break;
-        case 2:
-            questionBank = generateLevel2Questions();
-            break;
-        case 3:
-            questionBank = generateLevel3Questions();
-            break;
-        case 4:
-            questionBank = generateLevel4Questions();
-            break;
-        case 5:
-            questionBank = generateLevel5Questions();
-            break;
-        case 6:
-            questionBank = generateLevel6Questions();
-            break;
-        default:
-            // 默认加载第一关题目
-            questionBank = generateLevel1Questions();
-            break;
+        case 1: filename = "level1_questions.cpp"; break;
+        case 2: filename = "level2_questions.cpp"; break;
+        case 3: filename = "level3_questions.cpp"; break;
+        case 4: filename = "level4_questions.cpp"; break;
+        case 5: filename = "level5_questions.cpp"; break;
+        case 6: filename = "level6_questions.cpp"; break;
+        case 7: filename = "level7_questions.cpp"; break;
+        case 8: filename = "level8_questions.cpp"; break;
+        case 9: filename = "level9_questions.cpp"; break;
+        case 10: filename = "level10_questions.cpp"; break;
+        case 11: filename = "level11_questions.cpp"; break;
+        case 12: filename = "level12_questions.cpp"; break;
+        case 13: filename = "level13_questions.cpp"; break;
+        case 14: filename = "level14_questions.cpp"; break;
+        case 15: filename = "level15_questions.cpp"; break;
+        case 16: filename = "level16_questions.cpp"; break;
+        default: filename = "level1_questions.cpp"; break;
+    }
+    
+    questionBank = loadQuestionsFromFile(filename);
+    
+    // 如果从文件加载的题目不足，补充备用题目
+    if (questionBank.size() < 5) {
+        std::vector<Question> fallbackQuestions = generateFallbackQuestions();
+        questionBank.insert(questionBank.end(), fallbackQuestions.begin(), fallbackQuestions.end());
     }
 }
 
-// 生成随机整数
-int randomInt(int min, int max) {
-    static std::mt19937 rng(time(0));
-    std::uniform_int_distribution<int> dist(min, max);
-    return dist(rng);
+// 加载每日挑战题目
+void QuizManager::loadDailyChallenge(int challengeType) {
+    currentLevelId = challengeType == 1 ? 13 : 16; // 1表示关卡13的每日挑战，2表示关卡16的每日挑战
+    questionBank.clear();
+    currentQuestionIndex = 0;
+    
+    std::string filename = challengeType == 1 ? "daily_challenge_13.cpp" : "daily_challenge_16.cpp";
+    questionBank = loadQuestionsFromFile(filename);
+    
+    // 如果从文件加载的题目不足，补充备用题目
+    if (questionBank.size() < 5) {
+        std::vector<Question> fallbackQuestions = generateFallbackQuestions();
+        questionBank.insert(questionBank.end(), fallbackQuestions.begin(), fallbackQuestions.end());
+    }
 }
 
-// 关卡1题目生成（十以内加减乘除）
-std::vector<Question> QuizManager::generateLevel1Questions() {
+// 从文件加载题目的函数
+std::vector<Question> QuizManager::loadQuestionsFromFile(const std::string& filename) {
     std::vector<Question> questions;
-    std::vector<std::string> operators = {"+", "-", "×", "÷"};
+    std::ifstream file(filename);
     
-    for (int i = 1; i <= 10; i++) {
+    if (!file.is_open()) {
+        std::cerr << "错误：无法打开文件 " << filename << std::endl;
+        // 返回空列表，将由调用者处理
+        return questions;
+    }
+    
+    std::string line;
+    Question currentQuestion;
+    int questionId = 1;
+    bool inQuestionBlock = false;
+    
+    while (std::getline(file, line)) {
+        // 跳过空行和注释
+        if (line.empty() || line.find("//") == 0) {
+            continue;
+        }
+        
+        // 检测题目开始标记
+        if (line.find("QUESTION:") != std::string::npos) {
+            if (inQuestionBlock) {
+                // 保存当前题目
+                questions.push_back(currentQuestion);
+            }
+            
+            currentQuestion = Question();
+            currentQuestion.id = questionId++;
+            currentQuestion.type = ARITHMETIC;
+            
+            // 提取题目内容
+            size_t pos = line.find(":");
+            if (pos != std::string::npos) {
+                currentQuestion.content = line.substr(pos + 1);
+                // 去除前后空格
+                currentQuestion.content.erase(0, currentQuestion.content.find_first_not_of(" \t"));
+                currentQuestion.content.erase(currentQuestion.content.find_last_not_of(" \t") + 1);
+            }
+            inQuestionBlock = true;
+        }
+        // 检测答案标记
+        else if (line.find("ANSWER:") != std::string::npos && inQuestionBlock) {
+            size_t pos = line.find(":");
+            if (pos != std::string::npos) {
+                currentQuestion.answer = line.substr(pos + 1);
+                // 去除前后空格
+                currentQuestion.answer.erase(0, currentQuestion.answer.find_first_not_of(" \t"));
+                currentQuestion.answer.erase(currentQuestion.answer.find_last_not_of(" \t") + 1);
+            }
+        }
+        // 检测解析标记
+        else if (line.find("EXPLANATION:") != std::string::npos && inQuestionBlock) {
+            size_t pos = line.find(":");
+            if (pos != std::string::npos) {
+                currentQuestion.explanation = line.substr(pos + 1);
+                // 去除前后空格
+                currentQuestion.explanation.erase(0, currentQuestion.explanation.find_first_not_of(" \t"));
+                currentQuestion.explanation.erase(currentQuestion.explanation.find_last_not_of(" \t") + 1);
+            }
+        }
+    }
+    
+    // 添加最后一个题目
+    if (inQuestionBlock && !currentQuestion.content.empty()) {
+        questions.push_back(currentQuestion);
+    }
+    
+    file.close();
+    
+    return questions;
+}
+
+// 生成备用题目（非常简单的题目，仅在文件加载失败时使用）
+std::vector<Question> QuizManager::generateFallbackQuestions() {
+    std::vector<Question> questions;
+    
+    // 添加一些非常基础的题目作为备用
+    for (int i = 1; i <= 5; i++) {
         Question q;
         q.id = i;
         q.type = ARITHMETIC;
         
-        int num1 = randomInt(1, 10);
-        int num2 = randomInt(1, 10);
-        std::string op = operators[randomInt(0, 3)];
+        int a = randomInt(1, 10);
+        int b = randomInt(1, 10);
         
-        // 确保减法结果不为负数
-        if (op == "-" && num1 < num2) {
-            std::swap(num1, num2);
-        }
-        
-        // 确保除法能整除
-        if (op == "÷") {
-            num2 = randomInt(1, 10);
-            num1 = num2 * randomInt(1, 10);
-            if (num1 > 10) num1 = num2 * randomInt(1, 5); // 确保不超过10
-        }
-        
-        std::stringstream ss;
-        ss << num1 << " " << op << " " << num2;
-        q.content = ss.str();
-        
-        // 计算答案
-        if (op == "+") {
-            q.answer = std::to_string(num1 + num2);
-        } else if (op == "-") {
-            q.answer = std::to_string(num1 - num2);
-        } else if (op == "×") {
-            q.answer = std::to_string(num1 * num2);
-        } else if (op == "÷") {
-            q.answer = std::to_string(num1 / num2);
-        }
-        
+        q.content = std::to_string(a) + " + " + std::to_string(b);
+        q.answer = std::to_string(a + b);
         q.explanation = "直接计算: " + q.content + " = " + q.answer;
-        questions.push_back(q);
-    }
-    
-    return questions;
-}
-
-// 关卡2题目生成（百以内加减乘除）
-std::vector<Question> QuizManager::generateLevel2Questions() {
-    std::vector<Question> questions;
-    std::vector<std::string> operators = {"+", "-", "×", "÷"};
-    
-    for (int i = 1; i <= 10; i++) {
-        Question q;
-        q.id = i;
-        q.type = ARITHMETIC;
-        
-        int num1 = randomInt(10, 100);
-        int num2 = randomInt(1, 100);
-        std::string op = operators[randomInt(0, 3)];
-        
-        // 确保减法结果不为负数
-        if (op == "-" && num1 < num2) {
-            std::swap(num1, num2);
-        }
-        
-        // 确保除法能整除
-        if (op == "÷") {
-            num2 = randomInt(1, 20);
-            num1 = num2 * randomInt(1, 10);
-            if (num1 > 100) num1 = num2 * randomInt(1, 5); // 确保不超过100
-        }
-        
-        std::stringstream ss;
-        ss << num1 << " " << op << " " << num2;
-        q.content = ss.str();
-        
-        // 计算答案
-        if (op == "+") {
-            q.answer = std::to_string(num1 + num2);
-        } else if (op == "-") {
-            q.answer = std::to_string(num1 - num2);
-        } else if (op == "×") {
-            q.answer = std::to_string(num1 * num2);
-        } else if (op == "÷") {
-            q.answer = std::to_string(num1 / num2);
-        }
-        
-        q.explanation = "直接计算: " + q.content + " = " + q.answer;
-        questions.push_back(q);
-    }
-    
-    return questions;
-}
-
-// 关卡3题目生成（多项式运算）
-std::vector<Question> QuizManager::generateLevel3Questions() {
-    std::vector<Question> questions;
-    
-    for (int i = 1; i <= 10; i++) {
-        Question q;
-        q.id = i;
-        q.type = ARITHMETIC;
-        
-        int num1 = randomInt(1, 20);
-        int num2 = randomInt(1, 20);
-        int num3 = randomInt(1, 20);
-        
-        // 随机选择运算类型
-        int pattern = randomInt(1, 4);
-        std::stringstream ss;
-        
-        switch (pattern) {
-            case 1: // a + b × c
-                ss << num1 << " + " << num2 << " × " << num3;
-                q.content = ss.str();
-                q.answer = std::to_string(num1 + num2 * num3);
-                q.explanation = "先乘除后加减: " + std::to_string(num2) + " × " + 
-                               std::to_string(num3) + " = " + std::to_string(num2 * num3) + 
-                               ", 然后 " + std::to_string(num1) + " + " + 
-                               std::to_string(num2 * num3) + " = " + q.answer;
-                break;
-                
-            case 2: // a × b + c
-                ss << num1 << " × " << num2 << " + " << num3;
-                q.content = ss.str();
-                q.answer = std::to_string(num1 * num2 + num3);
-                q.explanation = "先乘除后加减: " + std::to_string(num1) + " × " + 
-                               std::to_string(num2) + " = " + std::to_string(num1 * num2) + 
-                               ", 然后 " + std::to_string(num1 * num2) + " + " + 
-                               std::to_string(num3) + " = " + q.answer;
-                break;
-                
-            case 3: // (a + b) × c
-                ss << "(" << num1 << " + " << num2 << ") × " << num3;
-                q.content = ss.str();
-                q.answer = std::to_string((num1 + num2) * num3);
-                q.explanation = "先计算括号内: " + std::to_string(num1) + " + " + 
-                               std::to_string(num2) + " = " + std::to_string(num1 + num2) + 
-                               ", 然后 " + std::to_string(num1 + num2) + " × " + 
-                               std::to_string(num3) + " = " + q.answer;
-                break;
-                
-            case 4: // a × (b + c)
-                ss << num1 << " × (" << num2 << " + " << num3 << ")";
-                q.content = ss.str();
-                q.answer = std::to_string(num1 * (num2 + num3));
-                q.explanation = "先计算括号内: " + std::to_string(num2) + " + " + 
-                               std::to_string(num3) + " = " + std::to_string(num2 + num3) + 
-                               ", 然后 " + std::to_string(num1) + " × " + 
-                               std::to_string(num2 + num3) + " = " + q.answer;
-                break;
-        }
-        
-        questions.push_back(q);
-    }
-    
-    return questions;
-}
-
-// 关卡4题目生成（十以内小数运算）
-std::vector<Question> QuizManager::generateLevel4Questions() {
-    std::vector<Question> questions;
-    std::vector<std::string> operators = {"+", "-", "×", "÷"};
-    
-    for (int i = 1; i <= 10; i++) {
-        Question q;
-        q.id = i;
-        q.type = ARITHMETIC;
-        
-        // 生成1位小数
-        double num1 = randomInt(1, 100) / 10.0;
-        double num2 = randomInt(1, 100) / 10.0;
-        std::string op = operators[randomInt(0, 3)];
-        
-        // 确保减法结果不为负数
-        if (op == "-" && num1 < num2) {
-            std::swap(num1, num2);
-        }
-        
-        // 确保除法能整除
-        if (op == "÷") {
-            num2 = randomInt(1, 20) / 10.0;
-            num1 = num2 * randomInt(1, 10);
-        }
-        
-        std::stringstream ss;
-        ss << std::fixed << std::setprecision(1) << num1 << " " << op << " " << num2;
-        q.content = ss.str();
-        
-        // 计算答案
-        double result;
-        if (op == "+") {
-            result = num1 + num2;
-        } else if (op == "-") {
-            result = num1 - num2;
-        } else if (op == "×") {
-            result = num1 * num2;
-        } else if (op == "÷") {
-            result = num1 / num2;
-        }
-        
-        // 格式化答案
-        std::stringstream ans_ss;
-        ans_ss << std::fixed << std::setprecision(1) << result;
-        q.answer = ans_ss.str();
-        
-        q.explanation = "直接计算: " + q.content + " = " + q.answer;
-        questions.push_back(q);
-    }
-    
-    return questions;
-}
-
-// 关卡5题目生成（百以内小数运算）
-std::vector<Question> QuizManager::generateLevel5Questions() {
-    std::vector<Question> questions;
-    std::vector<std::string> operators = {"+", "-", "×", "÷"};
-    
-    for (int i = 1; i <= 10; i++) {
-        Question q;
-        q.id = i;
-        q.type = ARITHMETIC;
-        
-        // 生成2位小数
-        double num1 = randomInt(10, 1000) / 100.0;
-        double num2 = randomInt(1, 1000) / 100.0;
-        std::string op = operators[randomInt(0, 3)];
-        
-        // 确保减法结果不为负数
-        if (op == "-" && num1 < num2) {
-            std::swap(num1, num2);
-        }
-        
-        // 确保除法能整除
-        if (op == "÷") {
-            num2 = randomInt(1, 200) / 100.0;
-            num1 = num2 * randomInt(1, 10);
-        }
-        
-        std::stringstream ss;
-        ss << std::fixed << std::setprecision(2) << num1 << " " << op << " " << num2;
-        q.content = ss.str();
-        
-        // 计算答案
-        double result;
-        if (op == "+") {
-            result = num1 + num2;
-        } else if (op == "-") {
-            result = num1 - num2;
-        } else if (op == "×") {
-            result = num1 * num2;
-        } else if (op == "÷") {
-            result = num1 / num2;
-        }
-        
-        // 格式化答案
-        std::stringstream ans_ss;
-        ans_ss << std::fixed << std::setprecision(2) << result;
-        q.answer = ans_ss.str();
-        
-        q.explanation = "直接计算: " + q.content + " = " + q.answer;
-        questions.push_back(q);
-    }
-    
-    return questions;
-}
-
-// 关卡6题目生成（复杂小数运算）
-std::vector<Question> QuizManager::generateLevel6Questions() {
-    std::vector<Question> questions;
-    
-    for (int i = 1; i <= 10; i++) {
-        Question q;
-        q.id = i;
-        q.type = ARITHMETIC;
-        
-        // 生成2位小数
-        double num1 = randomInt(1, 200) / 100.0;
-        double num2 = randomInt(1, 200) / 100.0;
-        double num3 = randomInt(1, 200) / 100.0;
-        
-        // 随机选择运算类型
-        int pattern = randomInt(1, 4);
-        std::stringstream ss;
-        double result;
-        
-        switch (pattern) {
-            case 1: // a + b × c
-                ss << std::fixed << std::setprecision(2) << num1 << " + " << num2 << " × " << num3;
-                q.content = ss.str();
-                result = num1 + num2 * num3;
-                q.explanation = "先乘除后加减: " + std::to_string(num2) + " × " + 
-                               std::to_string(num3) + " = " + std::to_string(num2 * num3) + 
-                               ", 然后 " + std::to_string(num1) + " + " + 
-                               std::to_string(num2 * num3) + " = " + std::to_string(result);
-                break;
-                
-            case 2: // a × b + c
-                ss << std::fixed << std::setprecision(2) << num1 << " × " << num2 << " + " << num3;
-                q.content = ss.str();
-                result = num1 * num2 + num3;
-                q.explanation = "先乘除后加减: " + std::to_string(num1) + " × " + 
-                               std::to_string(num2) + " = " + std::to_string(num1 * num2) + 
-                               ", 然后 " + std::to_string(num1 * num2) + " + " + 
-                               std::to_string(num3) + " = " + std::to_string(result);
-                break;
-                
-            case 3: // (a + b) × c
-                ss << std::fixed << std::setprecision(2) << "(" << num1 << " + " << num2 << ") × " << num3;
-                q.content = ss.str();
-                result = (num1 + num2) * num3;
-                q.explanation = "先计算括号内: " + std::to_string(num1) + " + " + 
-                               std::to_string(num2) + " = " + std::to_string(num1 + num2) + 
-                               ", 然后 " + std::to_string(num1 + num2) + " × " + 
-                               std::to_string(num3) + " = " + std::to_string(result);
-                break;
-                
-            case 4: // a × (b + c)
-                ss << std::fixed << std::setprecision(2) << num1 << " × (" << num2 << " + " << num3 << ")";
-                q.content = ss.str();
-                result = num1 * (num2 + num3);
-                q.explanation = "先计算括号内: " + std::to_string(num2) + " + " + 
-                               std::to_string(num3) + " = " + std::to_string(num2 + num3) + 
-                               ", 然后 " + std::to_string(num1) + " × " + 
-                               std::to_string(num2 + num3) + " = " + std::(result);
-                break;
-        }
-        
-        // 格式化答案
-        std::stringstream ans_ss;
-        ans_ss << std::fixed << std::setprecision(2) << result;
-        q.answer = ans_ss.str();
         
         questions.push_back(q);
     }
@@ -424,4 +195,12 @@ void QuizManager::reset() {
 // 获取当前关卡ID
 int QuizManager::getCurrentLevelId() const {
     return currentLevelId;
+}
+
+// 生成随机整数
+int QuizManager::randomInt(int min, int max) {
+    static std::random_device rd;
+    static std::mt19937 gen(rd());
+    std::uniform_int_distribution<> distrib(min, max);
+    return distrib(gen);
 }

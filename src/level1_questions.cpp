@@ -46,6 +46,7 @@ std::vector<Question> generateLevel1Questions() {
         if (op == "+") {
             q.answer = std::to_string(num1 + num2);
         } else if (op == "-") {
+            
             q.answer = std::to_string(num1 - num2);
         } else if (op == "×") {
             q.answer = std::to_string(num1 * num2);
