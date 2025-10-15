@@ -6,23 +6,7 @@
 #include <iomanip>
 #include <cmath>
 
-// 生成随机小数（1位小数）
-double randomDecimal1(int min, int max) {
-    static std::random_device rd;
-    static std::mt19937 gen(rd());
-    std::uniform_real_distribution<> distrib(min, max);
-    double value = distrib(gen);
-    return std::round(value * 10) / 10; // 保留1位小数
-}
-
-// 生成随机小数（2位小数）
-double randomDecimal2(int min, int max) {
-    static std::random_device rd;
-    static std::mt19937 gen(rd());
-    std::uniform_real_distribution<> distrib(min, max);
-    double value = distrib(gen);
-    return std::round(value * 100) / 100; // 保留2位小数
-}
+// ...已移除重复的随机数函数，统一用question.h声明的实现...
 
 // 生成关卡4题目（简单：十以内小数运算）
 std::vector<Question> generateLevel4Questions() {

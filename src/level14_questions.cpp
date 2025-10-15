@@ -8,12 +8,7 @@
 #include <map>
 
 // 生成随机整数
-int randomInt(int min, int max) {
-    static std::random_device rd;
-    static std::mt19937 gen(rd());
-    std::uniform_int_distribution<> distrib(min, max);
-    return distrib(gen);
-}
+// ...已移除重复的随机数函数，统一用question.h声明的实现...
 
 // 常见π倍数
 std::vector<double> piMultiples = {M_PI/6, M_PI/4, M_PI/3, M_PI/2, 2*M_PI/3, 3*M_PI/4, 5*M_PI/6, M_PI, 7*M_PI/6, 5*M_PI/4, 4*M_PI/3, 3*M_PI/2, 5*M_PI/3, 7*M_PI/4, 11*M_PI/6, 2*M_PI};

@@ -5,12 +5,7 @@
 #include <sstream>
 
 // 生成随机整数
-int randomInt(int min, int max) {
-    static std::random_device rd;
-    static std::mt19937 gen(rd());
-    std::uniform_int_distribution<> distrib(min, max);
-    return distrib(gen);
-}
+// ...已移除重复的随机数函数，统一用question.h声明的实现...
 
 // 生成关卡2题目（百以内加减乘除）
 std::vector<Question> generateLevel2Questions() {

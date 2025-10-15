@@ -17,32 +17,27 @@ void QuizManager::loadQuestionsForLevel(int levelId) {
     currentLevelId = levelId;
     questionBank.clear();
     currentQuestionIndex = 0;
-    
-    // 根据关卡ID从外部文件加载题目
-    std::string filename;
+    // 直接调用各关卡的题目生成函数
     switch (levelId) {
-        case 1: filename = "level1_questions.cpp"; break;
-        case 2: filename = "level2_questions.cpp"; break;
-        case 3: filename = "level3_questions.cpp"; break;
-        case 4: filename = "level4_questions.cpp"; break;
-        case 5: filename = "level5_questions.cpp"; break;
-        case 6: filename = "level6_questions.cpp"; break;
-        case 7: filename = "level7_questions.cpp"; break;
-        case 8: filename = "level8_questions.cpp"; break;
-        case 9: filename = "level9_questions.cpp"; break;
-        case 10: filename = "level10_questions.cpp"; break;
-        case 11: filename = "level11_questions.cpp"; break;
-        case 12: filename = "level12_questions.cpp"; break;
-        case 13: filename = "level13_questions.cpp"; break;
-        case 14: filename = "level14_questions.cpp"; break;
-        case 15: filename = "level15_questions.cpp"; break;
-        case 16: filename = "level16_questions.cpp"; break;
-        default: filename = "level1_questions.cpp"; break;
+        case 1: questionBank = generateLevel1Questions(); break;
+        case 2: questionBank = generateLevel2Questions(); break;
+        case 3: questionBank = generateLevel3Questions(); break;
+        case 4: questionBank = generateLevel4Questions(); break;
+        case 5: questionBank = generateLevel5Questions(); break;
+        case 6: questionBank = generateLevel6Questions(); break;
+        case 7: questionBank = generateLevel7Questions(); break;
+        case 8: questionBank = generateLevel8Questions(); break;
+        case 9: questionBank = generateLevel9Questions(); break;
+        case 10: questionBank = generateLevel10Questions(); break;
+        case 11: questionBank = generateLevel11Questions(); break;
+        case 12: questionBank = generateLevel12Questions(); break;
+        case 13: questionBank = generateLevel13Questions(); break;
+        case 14: questionBank = generateLevel14Questions(); break;
+        case 15: questionBank = generateLevel15Questions(); break;
+        case 16: questionBank = generateLevel16Questions(); break;
+        default: questionBank = generateLevel1Questions(); break;
     }
-    
-    questionBank = loadQuestionsFromFile(filename);
-    
-    // 如果从文件加载的题目不足，补充备用题目
+    // 如果生成的题目不足，补充备用题目
     if (questionBank.size() < 5) {
         std::vector<Question> fallbackQuestions = generateFallbackQuestions();
         questionBank.insert(questionBank.end(), fallbackQuestions.begin(), fallbackQuestions.end());
@@ -51,94 +46,23 @@ void QuizManager::loadQuestionsForLevel(int levelId) {
 
 // 加载每日挑战题目
 void QuizManager::loadDailyChallenge(int challengeType) {
-    currentLevelId = challengeType == 1 ? 13 : 16; // 1表示关卡13的每日挑战，2表示关卡16的每日挑战
+    currentLevelId = challengeType == 1 ? 13 : 16;
     questionBank.clear();
     currentQuestionIndex = 0;
-    
-    std::string filename = challengeType == 1 ? "daily_challenge_13.cpp" : "daily_challenge_16.cpp";
-    questionBank = loadQuestionsFromFile(filename);
-    
-    // 如果从文件加载的题目不足，补充备用题目
+    if (challengeType == 1) {
+        // 关卡13每日挑战（如有特殊实现可补充）
+        questionBank = generateLevel13Questions();
+    } else {
+        // 关卡16每日挑战
+        questionBank = generateDailyChallengeLevel16();
+    }
     if (questionBank.size() < 5) {
         std::vector<Question> fallbackQuestions = generateFallbackQuestions();
         questionBank.insert(questionBank.end(), fallbackQuestions.begin(), fallbackQuestions.end());
     }
 }
 
-// 从文件加载题目的函数
-std::vector<Question> QuizManager::loadQuestionsFromFile(const std::string& filename) {
-    std::vector<Question> questions;
-    std::ifstream file(filename);
-    
-    if (!file.is_open()) {
-        std::cerr << "错误：无法打开文件 " << filename << std::endl;
-        // 返回空列表，将由调用者处理
-        return questions;
-    }
-    
-    std::string line;
-    Question currentQuestion;
-    int questionId = 1;
-    bool inQuestionBlock = false;
-    
-    while (std::getline(file, line)) {
-        // 跳过空行和注释
-        if (line.empty() || line.find("//") == 0) {
-            continue;
-        }
-        
-        // 检测题目开始标记
-        if (line.find("QUESTION:") != std::string::npos) {
-            if (inQuestionBlock) {
-                // 保存当前题目
-                questions.push_back(currentQuestion);
-            }
-            
-            currentQuestion = Question();
-            currentQuestion.id = questionId++;
-            currentQuestion.type = ARITHMETIC;
-            
-            // 提取题目内容
-            size_t pos = line.find(":");
-            if (pos != std::string::npos) {
-                currentQuestion.content = line.substr(pos + 1);
-                // 去除前后空格
-                currentQuestion.content.erase(0, currentQuestion.content.find_first_not_of(" \t"));
-                currentQuestion.content.erase(currentQuestion.content.find_last_not_of(" \t") + 1);
-            }
-            inQuestionBlock = true;
-        }
-        // 检测答案标记
-        else if (line.find("ANSWER:") != std::string::npos && inQuestionBlock) {
-            size_t pos = line.find(":");
-            if (pos != std::string::npos) {
-                currentQuestion.answer = line.substr(pos + 1);
-                // 去除前后空格
-                currentQuestion.answer.erase(0, currentQuestion.answer.find_first_not_of(" \t"));
-                currentQuestion.answer.erase(currentQuestion.answer.find_last_not_of(" \t") + 1);
-            }
-        }
-        // 检测解析标记
-        else if (line.find("EXPLANATION:") != std::string::npos && inQuestionBlock) {
-            size_t pos = line.find(":");
-            if (pos != std::string::npos) {
-                currentQuestion.explanation = line.substr(pos + 1);
-                // 去除前后空格
-                currentQuestion.explanation.erase(0, currentQuestion.explanation.find_first_not_of(" \t"));
-                currentQuestion.explanation.erase(currentQuestion.explanation.find_last_not_of(" \t") + 1);
-            }
-        }
-    }
-    
-    // 添加最后一个题目
-    if (inQuestionBlock && !currentQuestion.content.empty()) {
-        questions.push_back(currentQuestion);
-    }
-    
-    file.close();
-    
-    return questions;
-}
+// ...已移除文件IO题库加载函数...
 
 // 生成备用题目（非常简单的题目，仅在文件加载失败时使用）
 std::vector<Question> QuizManager::generateFallbackQuestions() {
