@@ -1,0 +1,10 @@
+{
+  "name": "nm-headless-test",
+  "version": "1.0.0",
+  "description": "Headless test for NM app to reproduce question/level navigation issue",
+  "private": true,
+  "scripts": {
+  },
+  "dependencies": {
+  }
+}

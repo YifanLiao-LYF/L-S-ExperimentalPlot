@@ -1,0 +1,282 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>数感闯关 — 关卡选择与答题</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <header class="site-header">
+    <div class="container header-inner">
+      <div class="brand">
+        <div class="logo">🔢</div>
+        <h1 class="title">数感闯关</h1>
+      </div>
+      <nav class="main-nav" aria-label="主菜单导航">
+        <button class="nav-btn" data-view="levels">开始闯关</button>
+        <button class="nav-btn" data-view="practice">专项练习</button>
+        <button class="nav-btn" data-view="mistakes">错题集</button>
+        <button class="nav-btn" data-view="progress">闯关进度</button>
+      </nav>
+    </div>
+  </header>
+
+  <main class="container main-content">
+    <!-- Level Selection / Grid -->
+    <section id="levels" class="panel view active" aria-labelledby="levels-title">
+      <h2 id="levels-title" class="panel-title">关卡选择</h2>
+      <p class="panel-sub">共 16 关 — 完成关卡可获得分数并解锁后续关卡</p>
+
+      <div class="level-grid" role="list">
+        <!-- 16 cards: 示例展示。每个卡片包含 data-level-id 和 data-status（locked|unlocked|completed） -->
+        <article class="level-card unlocked" role="listitem" data-level-id="1" data-status="unlocked" aria-label="关卡 1 - 已解锁">
+          <div class="level-top">
+            <span class="level-number">1</span>
+            <span class="level-title">有理数运算</span>
+          </div>
+          <div class="level-body">
+            <p class="level-desc">掌握基本的有理数加减乘除</p>
+          </div>
+          <div class="level-footer">
+            <span class="status-tag green">可挑战</span>
+            <button class="btn btn-primary btn-sm">开始</button>
+          </div>
+        </article>
+
+        <article class="level-card locked" role="listitem" data-level-id="2" data-status="locked" data-required-score="30" aria-label="关卡 2 - 锁定">
+          <div class="level-top">
+            <span class="level-number">2</span>
+            <span class="level-title">一元一次方程</span>
+          </div>
+          <div class="level-body">
+            <p class="level-desc">解一元一次方程的基础练习</p>
+          </div>
+          <div class="level-footer">
+            <span class="status-tag red">锁定：需 30 分</span>
+            <button class="btn btn-muted btn-sm" disabled>锁定</button>
+          </div>
+        </article>
+
+        <article class="level-card completed" role="listitem" data-level-id="3" data-status="completed" data-score="85" data-stars="2" aria-label="关卡 3 - 已完成">
+          <div class="level-top">
+            <span class="level-number">3</span>
+            <span class="level-title">因式分解</span>
+          </div>
+          <div class="level-body">
+            <p class="level-desc">多项式因式分解技巧</p>
+          </div>
+          <div class="level-footer">
+            <span class="status-tag yellow">已完成：85 分</span>
+            <div class="stars">★ ★ ☆</div>
+            <button class="btn btn-outline btn-sm">再来一遍</button>
+          </div>
+        </article>
+
+        <article class="level-card locked" data-level-id="4" data-status="locked" data-required-score="90">
+          <div class="level-top"><span class="level-number">4</span><span class="level-title">小数运算</span></div>
+          <div class="level-body"><p class="level-desc">十以内小数加减乘除</p></div>
+          <div class="level-footer"><span class="status-tag red">锁定：需 90 分</span><button class="btn btn-muted btn-sm" disabled>锁定</button></div>
+        </article>
+
+        <article class="level-card unlocked" data-level-id="5" data-status="unlocked">
+          <div class="level-top"><span class="level-number">5</span><span class="level-title">百以内小数</span></div>
+          <div class="level-body"><p class="level-desc">百以内小数加减乘除</p></div>
+          <div class="level-footer"><span class="status-tag green">可挑战</span><button class="btn btn-primary btn-sm">开始</button></div>
+        </article>
+
+        <article class="level-card locked" data-level-id="6" data-status="locked" data-required-score="150">
+          <div class="level-top"><span class="level-number">6</span><span class="level-title">复杂小数运算</span></div>
+          <div class="level-body"><p class="level-desc">多步复杂小数运算</p></div>
+          <div class="level-footer"><span class="status-tag red">锁定：需 150 分</span><button class="btn btn-muted btn-sm" disabled>锁定</button></div>
+        </article>
+
+        <!-- 占位卡片，用于凑满 16 个（在真实 app 中按数据渲染） -->
+        <article class="level-card locked" data-level-id="7" data-status="locked" data-required-score="180">
+          <div class="level-top"><span class="level-number">7</span><span class="level-title">幂函数计算</span></div>
+          <div class="level-body"><p class="level-desc">掌握幂函数的基本运算</p></div>
+          <div class="level-footer"><span class="status-tag red">锁定：需 180 分</span><button class="btn btn-muted btn-sm" disabled>锁定</button></div>
+        </article>
+
+        <article class="level-card locked" data-level-id="8" data-status="locked" data-required-score="210">
+          <div class="level-top"><span class="level-number">8</span><span class="level-title">分数幂运算</span></div>
+          <div class="level-body"><p class="level-desc">分数幂的运算与应用</p></div>
+          <div class="level-footer"><span class="status-tag red">锁定：需 210 分</span><button class="btn btn-muted btn-sm" disabled>锁定</button></div>
+        </article>
+
+        <article class="level-card locked" data-level-id="9" data-status="locked" data-required-score="240">
+          <div class="level-top"><span class="level-number">9</span><span class="level-title">平方根计算</span></div>
+          <div class="level-body"><p class="level-desc">平方根的运算与应用</p></div>
+          <div class="level-footer"><span class="status-tag red">锁定：需 240 分</span><button class="btn btn-muted btn-sm" disabled>锁定</button></div>
+        </article>
+
+        <article class="level-card locked" data-level-id="10" data-status="locked" data-required-score="270">
+          <div class="level-top"><span class="level-number">10</span><span class="level-title">三角函数基础</span></div>
+          <div class="level-body"><p class="level-desc">特殊角的三角函数值</p></div>
+          <div class="level-footer"><span class="status-tag red">锁定：需 270 分</span><button class="btn btn-muted btn-sm" disabled>锁定</button></div>
+        </article>
+
+        <article class="level-card locked" data-level-id="11" data-status="locked" data-required-score="300">
+          <div class="level-top"><span class="level-number">11</span><span class="level-title">三角方程应用</span></div>
+          <div class="level-body"><p class="level-desc">简单三角方程求解</p></div>
+          <div class="level-footer"><span class="status-tag red">锁定：需 300 分</span><button class="btn btn-muted btn-sm" disabled>锁定</button></div>
+        </article>
+
+        <article class="level-card locked" data-level-id="12" data-status="locked" data-required-score="330">
+          <div class="level-top"><span class="level-number">12</span><span class="level-title">三角恒等式</span></div>
+          <div class="level-body"><p class="level-desc">复合三角恒等式与不等式</p></div>
+          <div class="level-footer"><span class="status-tag red">锁定：需 330 分</span><button class="btn btn-muted btn-sm" disabled>锁定</button></div>
+        </article>
+
+        <article class="level-card locked" data-level-id="13" data-status="locked" data-required-score="360">
+          <div class="level-top"><span class="level-number">13</span><span class="level-title">综合关卡一</span></div>
+          <div class="level-body"><p class="level-desc">综合前面所有知识点的挑战</p></div>
+          <div class="level-footer"><span class="status-tag red">锁定：需 360 分</span><button class="btn btn-muted btn-sm" disabled>锁定</button></div>
+        </article>
+
+        <article class="level-card locked" data-level-id="14" data-status="locked" data-required-score="390">
+          <div class="level-top"><span class="level-number">14</span><span class="level-title">常数计算</span></div>
+          <div class="level-body"><p class="level-desc">π值、e值和勾股定理的应用</p></div>
+          <div class="level-footer"><span class="status-tag red">锁定：需 390 分</span><button class="btn btn-muted btn-sm" disabled>锁定</button></div>
+        </article>
+
+        <article class="level-card locked" data-level-id="15" data-status="locked" data-required-score="420">
+          <div class="level-top"><span class="level-number">15</span><span class="level-title">对数与阶乘</span></div>
+          <div class="level-body"><p class="level-desc">对数和阶乘的计算</p></div>
+          <div class="level-footer"><span class="status-tag red">锁定：需 420 分</span><button class="btn btn-muted btn-sm" disabled>锁定</button></div>
+        </article>
+
+        <article class="level-card locked" data-level-id="16" data-status="locked" data-required-score="450">
+          <div class="level-top"><span class="level-number">16</span><span class="level-title">综合关卡二</span></div>
+          <div class="level-body"><p class="level-desc">终极综合挑战</p></div>
+          <div class="level-footer"><span class="status-tag red">锁定：需 450 分</span><button class="btn btn-muted btn-sm" disabled>锁定</button></div>
+        </article>
+      </div>
+
+      <div class="panel-actions">
+        <button class="btn btn-secondary">上一页</button>
+        <button class="btn btn-secondary">下一页</button>
+      </div>
+    </section>
+
+    <!-- Question / Answer View -->
+    <section id="question" class="panel view" aria-labelledby="question-title">
+      <h2 id="question-title" class="panel-title">答题界面</h2>
+
+      <div class="question-layout">
+        <aside class="question-sidebar">
+          <div class="progress-box">
+            <h3>进度</h3>
+            <div class="progress-line"><div class="progress-fill" style="width:40%"></div></div>
+            <div class="meta">题目 2 / 5 &nbsp; • &nbsp; 得分 40</div>
+          </div>
+          <div class="hint-box">
+            <h4>关卡信息</h4>
+            <p>关卡 1：有理数运算 — 难度：基础</p>
+          </div>
+        </aside>
+
+        <article class="question-main">
+          <div class="math-area" role="article" aria-label="题目内容">
+            <!-- 数学题目区域：字号大、行距宽、可放 LaTeX 或纯文本 -->
+            <div class="question-meta">题目 2 / 5</div>
+            <div class="question-text">计算： (3/4) × (8/9) + √(16) - 2</div>
+          </div>
+
+          <form class="answer-form" onsubmit="return false;">
+            <label for="answer-input" class="sr-only">你的答案</label>
+            <input id="answer-input" class="answer-input" type="text" placeholder="在此输入答案，如 1.5 或 3/2" />
+            <div class="answer-actions">
+              <button class="btn btn-primary">提交</button>
+              <button class="btn btn-outline">放弃并查看解析</button>
+            </div>
+          </form>
+
+          <div class="feedback muted">
+            <!-- 提交后显示正确/错误与解析 -->
+            <p class="result correct" hidden>✅ 正确！解析：……</p>
+            <p class="result wrong" hidden>❌ 错误！正确答案：2，解析：……</p>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <!-- Mistakes Page -->
+    <section id="mistakes" class="panel view" aria-labelledby="mistakes-title">
+      <h2 id="mistakes-title" class="panel-title">错题集</h2>
+      <p class="panel-sub">错题会记录题目、你的答案、正确答案与解析，便于复习。</p>
+
+      <div class="mistake-list">
+        <article class="mistake-item">
+          <div class="mistake-head">
+            <span class="mistake-number">错题 1</span>
+            <span class="mistake-level">关卡 1</span>
+          </div>
+          <div class="mistake-body">
+            <div class="mistake-question">题目：计算 7 × 8 - 3</div>
+            <div class="mistake-your">你的答案：50</div>
+            <div class="mistake-correct">正确答案：53</div>
+            <div class="mistake-explain">解析：7×8=56，56-3=53</div>
+          </div>
+        </article>
+
+        <!-- 更多错题项 -->
+      </div>
+    </section>
+
+    <!-- Progress / Stats Page -->
+    <section id="progress" class="panel view" aria-labelledby="progress-title">
+      <h2 id="progress-title" class="panel-title">闯关进度</h2>
+
+      <div class="stats-grid">
+        <div class="stat-card">
+          <h3>总分</h3>
+          <div class="stat-value">420</div>
+        </div>
+        <div class="stat-card">
+          <h3>已完成关卡</h3>
+          <div class="stat-value">8 / 16</div>
+        </div>
+        <div class="stat-card">
+          <h3>总星数</h3>
+          <div class="stat-value">14 / 48</div>
+        </div>
+      </div>
+
+      <div class="progress-table-wrap">
+        <table class="progress-table" aria-describedby="progress-desc">
+          <caption id="progress-desc">每关得分、星级与解锁要求</caption>
+          <thead>
+            <tr><th>ID</th><th>关卡</th><th>状态</th><th>星级</th><th>分数</th><th>解锁要求</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>1</td><td>有理数运算</td><td>已完成</td><td>2</td><td>85</td><td>—</td></tr>
+            <tr><td>2</td><td>一元一次方程</td><td>锁定</td><td>—</td><td>—</td><td>30 分</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+  </main>
+
+  
+  <footer class="site-footer">
+    <div class="container footer-inner">
+      <p>© 数感闯关 · 练习与测评 · 祝你闯关顺利</p>
+  <!-- footer attribution removed per user request -->
+    </div>
+  </footer>
+</footer>
+
+  <!-- MathJax for formula rendering -->
+  <script>
+    window.MathJax = {
+      tex: { inlineMath: [['$', '$'], ['\\(', '\\)']], displayMath: [['$$','$$']] },
+      svg: { fontCache: 'global' }
+    };
+  </script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+
+  <!-- App entrypoint (cache-bust to ensure clients fetch latest modules) -->
+  <script type="module" src="./app.js?v=2"></script>
+</body>
+</html>
